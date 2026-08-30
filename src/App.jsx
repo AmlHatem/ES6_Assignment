@@ -1,371 +1,523 @@
 import { useState } from "react";
 import "./App.css";
 
-const initialTasks = [
-  {
-    id: 1,
-    title: "Complete React Assignment",
-    category: "University",
-    priority: "High",
-    completed: true,
-  },
-  {
-    id: 2,
-    title: "Build TaskFlow UI",
-    category: "Development",
-    priority: "Medium",
-    completed: false,
-  },
-  {
-    id: 3,
-    title: "Review JavaScript",
-    category: "Study",
-    priority: "Low",
-    completed: false,
-  },
-];
-
-const categories = [
-  "All",
-  "University",
-  "Development",
-  "Study",
-  "Personal",
-];
-
-function Stats({ tasks }) {
-  const completed = tasks.filter((task) => task.completed).length;
-  const pending = tasks.length - completed;
-
+// ================================
+// Header Component
+// ================================
+function Header({ studentName, darkMode, setDarkMode }) {
   return (
-    <div className="stats">
-      <div className="stat-card">
-        <span>Total Tasks</span>
-        <strong>{tasks.length}</strong>
+    <header className="header">
+      <div>
+        <h1>Student Dashboard 🎓</h1>
+        <p>Welcome back, {studentName} 👋</p>
       </div>
 
-      <div className="stat-card">
-        <span>Completed</span>
-        <strong>{completed}</strong>
-      </div>
+      <div className="header-actions">
+        <button
+          className="theme-btn"
+          onClick={() => setDarkMode(!darkMode)}
+        >
+          {darkMode ? "☀️ Light" : "🌙 Dark"}
+        </button>
 
-      <div className="stat-card">
-        <span>Pending</span>
-        <strong>{pending}</strong>
+        <div className="profile">
+          <div className="avatar">
+            {studentName.charAt(0)}
+          </div>
+
+          <span>{studentName}</span>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+// ================================
+// Stat Card Component
+// ================================
+function StatCard({ title, value, icon }) {
+  return (
+    <div className="stat-card">
+      <div className="stat-icon">{icon}</div>
+
+      <div>
+        <h3>{value}</h3>
+        <p>{title}</p>
       </div>
     </div>
   );
 }
 
-function TaskCard({ task, onToggle, onDelete }) {
+// ================================
+// Course Card Component
+// ================================
+function CourseCard({ course }) {
   return (
-    <div className={`task-card ${task.completed ? "completed" : ""}`}>
-      <div className="task-info">
-        <div className="task-title-row">
-          <h3>{task.title}</h3>
+    <div className="course-card">
+      <div className="course-top">
+        <span className="course-icon">{course.icon}</span>
 
-          {task.completed && (
-            <span className="completed-badge">
-              Completed
-            </span>
-          )}
-        </div>
-
-        <div className="task-details">
-          <span className="category-name">
-            {task.category}
-          </span>
-
-          <span
-            className={`priority ${task.priority.toLowerCase()}`}
-          >
-            {task.priority} Priority
-          </span>
-        </div>
+        {/* Ternary Operator */}
+        <span
+          className={
+            course.completed ? "completed" : "in-progress"
+          }
+        >
+          {course.completed ? "Completed" : "In Progress"}
+        </span>
       </div>
 
-      <div className="task-actions">
-        <button
-          className="complete-button"
-          onClick={() => onToggle(task.id)}
-        >
-          {task.completed ? "Undo" : "Complete"}
-        </button>
+      <h3>{course.name}</h3>
 
-        <button
-          className="delete-button"
-          onClick={() => onDelete(task.id)}
-        >
-          Delete
-        </button>
+      <p>Instructor: {course.instructor}</p>
+
+      <div className="progress-container">
+        <div
+          className="progress-bar"
+          style={{
+            width: `${course.progress}%`,
+          }}
+        ></div>
+      </div>
+
+      <div className="course-bottom">
+        <span>{course.progress}% Progress</span>
+
+        <span>{course.lessons} Lessons</span>
       </div>
     </div>
   );
 }
 
-function AddTask({ onAdd }) {
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("Development");
-  const [priority, setPriority] = useState("Medium");
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    if (title.trim() === "") {
-      return;
-    }
-
-    onAdd({
-      title: title.trim(),
-      category,
-      priority,
-    });
-
-    setTitle("");
-    setCategory("Development");
-    setPriority("Medium");
-  };
-
+// ================================
+// Assignment Component
+// ================================
+function Assignment({
+  assignment,
+  onToggle,
+}) {
   return (
-    <form
-      className="add-task-form"
-      onSubmit={handleSubmit}
-    >
-      <div className="input-group">
-        <label>Task Name</label>
+    <div className="assignment">
 
-        <input
-          type="text"
-          placeholder="Enter a new task..."
-          value={title}
-          onChange={(event) =>
-            setTitle(event.target.value)
-          }
-        />
+      <div className="assignment-info">
+
+        <div className="assignment-icon">
+          📝
+        </div>
+
+        <div>
+          <h3>{assignment.title}</h3>
+
+          <p>{assignment.subject}</p>
+        </div>
+
       </div>
 
-      <div className="input-group">
-        <label>Category</label>
+      <div className="assignment-status">
 
-        <select
-          value={category}
-          onChange={(event) =>
-            setCategory(event.target.value)
-          }
-        >
-          <option>Development</option>
-          <option>University</option>
-          <option>Study</option>
-          <option>Personal</option>
-        </select>
-      </div>
-
-      <div className="input-group">
-        <label>Priority</label>
-
-        <select
-          value={priority}
-          onChange={(event) =>
-            setPriority(event.target.value)
+        {/* Ternary Operator */}
+        <span
+          className={
+            assignment.completed
+              ? "done"
+              : "pending"
           }
         >
-          <option>Low</option>
-          <option>Medium</option>
-          <option>High</option>
-        </select>
+          {assignment.completed
+            ? "Done"
+            : "Pending"}
+        </span>
+
+        <small>
+          Due: {assignment.dueDate}
+        </small>
+
+        <button
+          className="status-btn"
+          onClick={() =>
+            onToggle(assignment.id)
+          }
+        >
+          {assignment.completed
+            ? "Mark Pending"
+            : "Mark Done"}
+        </button>
+
       </div>
 
-      <button
-        className="add-button"
-        type="submit"
-      >
-        + Add Task
-      </button>
-    </form>
+    </div>
   );
 }
 
+// ================================
+// Main App
+// ================================
 function App() {
-  const [tasks, setTasks] = useState(initialTasks);
 
-  const [selectedCategory, setSelectedCategory] =
-    useState("All");
+  const [darkMode, setDarkMode] =
+    useState(false);
 
-  const [showCompleted, setShowCompleted] =
+  const [showAssignments, setShowAssignments] =
     useState(true);
 
-  const addTask = (newTask) => {
-    const task = {
-      id: Date.now(),
-      ...newTask,
+  const [showCourses, setShowCourses] =
+    useState(true);
+
+  const [search, setSearch] =
+    useState("");
+
+  const [message, setMessage] =
+    useState(
+      "🚀 Keep going! You are doing great!"
+    );
+
+  // ================================
+  // Courses Data
+  // ================================
+  const [courses] = useState([
+    {
+      id: 1,
+      name: "ReactJS",
+      instructor: "Ahmed Mohamed",
+      progress: 85,
+      lessons: 12,
       completed: false,
-    };
+      icon: "⚛️",
+    },
 
-    setTasks((currentTasks) => [
-      ...currentTasks,
-      task,
+    {
+      id: 2,
+      name: "JavaScript",
+      instructor: "Omar Hassan",
+      progress: 100,
+      lessons: 15,
+      completed: true,
+      icon: "🟨",
+    },
+
+    {
+      id: 3,
+      name: "HTML & CSS",
+      instructor: "Sara Ali",
+      progress: 70,
+      lessons: 10,
+      completed: false,
+      icon: "🎨",
+    },
+
+    {
+      id: 4,
+      name: "Git & GitHub",
+      instructor: "Mohamed Adel",
+      progress: 90,
+      lessons: 8,
+      completed: false,
+      icon: "🐙",
+    },
+  ]);
+
+  // ================================
+  // Assignments Data
+  // ================================
+  const [assignments, setAssignments] =
+    useState([
+      {
+        id: 1,
+        title: "React Components",
+        subject: "ReactJS",
+        dueDate: "Today",
+        completed: false,
+      },
+
+      {
+        id: 2,
+        title: "JavaScript Functions",
+        subject: "JavaScript",
+        dueDate: "Tomorrow",
+        completed: true,
+      },
+
+      {
+        id: 3,
+        title: "CSS Landing Page",
+        subject: "HTML & CSS",
+        dueDate: "Sep 2",
+        completed: false,
+      },
     ]);
-  };
 
-  const toggleTask = (id) => {
-    setTasks((currentTasks) =>
-      currentTasks.map((task) =>
-        task.id === id
-          ? {
-              ...task,
-              completed: !task.completed,
-            }
-          : task
-      )
+  // ================================
+  // Toggle Assignment
+  // ================================
+  function toggleAssignment(id) {
+
+    setAssignments(
+      assignments.map((assignment) => {
+
+        if (assignment.id === id) {
+          return {
+            ...assignment,
+            completed:
+              !assignment.completed,
+          };
+        }
+
+        return assignment;
+      })
     );
-  };
 
-  const deleteTask = (id) => {
-    setTasks((currentTasks) =>
-      currentTasks.filter(
-        (task) => task.id !== id
-      )
+    setMessage(
+      "✅ Assignment status updated!"
     );
-  };
+  }
 
-  // Category Filter
-  const categoryTasks =
-    selectedCategory === "All"
-      ? tasks
-      : tasks.filter(
-          (task) =>
-            task.category === selectedCategory
-        );
+  // ================================
+  // Search Courses
+  // ================================
+  const filteredCourses =
+    courses.filter((course) =>
+      course.name
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
 
-  // Completed Filter
-  const visibleTasks = showCompleted
-    ? categoryTasks
-    : categoryTasks.filter(
-        (task) => !task.completed
-      );
+  // ================================
+  // Statistics
+  // ================================
+  const completedAssignments =
+    assignments.filter(
+      (assignment) =>
+        assignment.completed
+    ).length;
 
   return (
-    <div className="app">
-      {/* HEADER */}
+    <div
+      className={
+        darkMode
+          ? "app dark"
+          : "app"
+      }
+    >
 
-      <header className="header">
-        <div>
-          <p className="welcome">
-            Welcome back 👋
-          </p>
+      {/* Header */}
+      <Header
+        studentName="أمل حاتم"
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+      />
 
-          <h1>TaskFlow</h1>
+      <main className="container">
 
-          <p className="subtitle">
-            Organize your work. Stay productive.
-          </p>
-        </div>
+        {/* =========================
+            Welcome Message
+        ========================= */}
+        <section className="welcome">
 
-        <div className="header-icon">
-          ✓
-        </div>
-      </header>
-
-      <main>
-        {/* STATS */}
-
-        <Stats tasks={categoryTasks} />
-
-        {/* ADD TASK */}
-
-        <section className="add-section">
-          <div className="section-title">
-            <h2>Add New Task</h2>
+          <div>
+            <h2>
+              Hello, أمل حاتم! 👋
+            </h2>
 
             <p>
-              Create a task and keep your work organized.
+              Ready to continue your
+              learning journey?
             </p>
           </div>
 
-          <AddTask onAdd={addTask} />
+          <button
+            onClick={() =>
+              setMessage(
+                "🔥 You're doing amazing, أمل!"
+              )
+            }
+          >
+            Motivate Me 🚀
+          </button>
+
         </section>
 
-        {/* TASKS */}
+        {/* =========================
+            Statistics
+        ========================= */}
+        <section className="stats">
 
-        <section className="tasks-section">
+          <StatCard
+            title="Courses"
+            value={courses.length}
+            icon="📚"
+          />
+
+          <StatCard
+            title="Completed Courses"
+            value={
+              courses.filter(
+                (course) =>
+                  course.completed
+              ).length
+            }
+            icon="✅"
+          />
+
+          <StatCard
+            title="Assignments"
+            value={assignments.length}
+            icon="📝"
+          />
+
+          <StatCard
+            title="Completed Assignments"
+            value={completedAssignments}
+            icon="🏆"
+          />
+
+        </section>
+
+        {/* =========================
+            Courses
+        ========================= */}
+        <section className="section">
+
           <div className="section-header">
-            <div>
-              <h2>My Tasks</h2>
 
-              {categoryTasks.length > 0 && (
-                <p>
-                  You have {categoryTasks.length}{" "}
-                  tasks in this category.
-                </p>
-              )}
+            <div>
+              <h2>My Courses 📚</h2>
+
+              <p>
+                Continue your learning
+                journey
+              </p>
             </div>
 
             <button
-              className="filter-button"
+              className="toggle-btn"
               onClick={() =>
-                setShowCompleted(!showCompleted)
+                setShowCourses(
+                  !showCourses
+                )
               }
             >
-              {showCompleted
-                ? "Hide Completed"
-                : "Show All"}
+              {showCourses
+                ? "Hide Courses"
+                : "Show Courses"}
             </button>
+
           </div>
 
-          {/* CATEGORY FILTER */}
+          {/* Search */}
+          {showCourses && (
+            <input
+              className="search"
+              type="text"
+              placeholder="🔍 Search courses..."
+              value={search}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
+            />
+          )}
 
-          <div className="category-filter">
-            <div>
-              <span>Filter by category</span>
+          {/* && Operator */}
+          {showCourses && (
+
+            <div className="courses-grid">
+
+              {/* .map() */}
+              {filteredCourses.map(
+                (course) => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                  />
+                )
+              )}
+
             </div>
 
-            <div className="category-buttons">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  className={
-                    selectedCategory === category
-                      ? "category-button active"
-                      : "category-button"
-                  }
-                  onClick={() =>
-                    setSelectedCategory(category)
-                  }
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
 
-          {/* TASK LIST */}
-
-          <div className="task-list">
-            {visibleTasks.length > 0 ? (
-              visibleTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onToggle={toggleTask}
-                  onDelete={deleteTask}
-                />
-              ))
-            ) : (
-              <div className="empty-state">
-                <div>📋</div>
-
-                <h3>
-                  No tasks found
-                </h3>
-
-                <p>
-                  There are no tasks in this category.
-                </p>
-              </div>
-            )}
-          </div>
         </section>
+
+        {/* =========================
+            Assignments
+        ========================= */}
+        <section className="section">
+
+          <div className="section-header">
+
+            <div>
+              <h2>Assignments 📝</h2>
+
+              <p>
+                Manage your assignments
+              </p>
+            </div>
+
+            <button
+              className="toggle-btn"
+              onClick={() =>
+                setShowAssignments(
+                  !showAssignments
+                )
+              }
+            >
+              {showAssignments
+                ? "Hide"
+                : "Show"}
+            </button>
+
+          </div>
+
+          {/* && Operator */}
+          {showAssignments && (
+
+            <div className="assignments">
+
+              {/* .map() */}
+              {assignments.map(
+                (assignment) => (
+
+                  <Assignment
+                    key={assignment.id}
+                    assignment={assignment}
+                    onToggle={
+                      toggleAssignment
+                    }
+                  />
+
+                )
+              )}
+
+            </div>
+
+          )}
+
+        </section>
+
+        {/* =========================
+            Dynamic Message
+        ========================= */}
+        <section className="message">
+
+          <p>{message}</p>
+
+          {/* Ternary */}
+          <span>
+            {completedAssignments ===
+            assignments.length
+              ? "🎉 All assignments completed!"
+              : "📖 You still have work to do!"}
+          </span>
+
+        </section>
+
       </main>
+
+      <footer>
+        <p>
+          © 2026 أمل حاتم | ReactJS Assignment
+        </p>
+      </footer>
+
     </div>
   );
 }
